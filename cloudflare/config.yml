@@ -1,0 +1,15 @@
+# Cloudflare Tunnel Configuration
+tunnel: vehicle-service-center-api
+credentials-file: ~/.cloudflared/cert.pem
+
+ingress:
+  # Route all traffic to your local NestJS application
+  - hostname: "*.trycloudflare.com"
+    service: http://localhost:3000
+  
+  # Catch-all rule (required)
+  - service: http_status:404
+
+# Optional: Configure logging
+# logfile: /var/log/cloudflared.log
+# loglevel: info
