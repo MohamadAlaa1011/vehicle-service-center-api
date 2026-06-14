@@ -15,7 +15,9 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
       synchronize: configService.get<string>('NODE_ENV') === 'development',
       logging: configService.get<string>('NODE_ENV') === 'development',
       autoLoadEntities: true,
-      ssl: configService.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
+      ssl: databaseUrl.includes('railway') || configService.get<string>('NODE_ENV') === 'production'
+        ? { rejectUnauthorized: false }
+        : false,
     };
   }
 
