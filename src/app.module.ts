@@ -25,8 +25,9 @@ import { AppService } from './app.service';
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', '.env.production'],
-      ignoreEnvFile: process.env.DATABASE_URL !== undefined,
+      // Only load local .env — never .env.production (contains invalid ${PLACEHOLDER} values)
+      envFilePath: ['.env'],
+      ignoreEnvFile: !!process.env.DATABASE_URL,
     }),
     
     // Database
