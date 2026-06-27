@@ -6,9 +6,6 @@ export declare class AuthController {
     constructor(authService: AuthService);
     register(registerDto: RegisterDto): Promise<AuthResponseDto>;
     login(loginDto: LoginDto, user: User): Promise<AuthResponseDto>;
-    logout(userId: string): Promise<{
-        message: string;
-    }>;
     refresh(refreshTokenDto: RefreshTokenDto): Promise<AuthResponseDto>;
     forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<{
         message: string;

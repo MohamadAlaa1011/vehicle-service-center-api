@@ -99,12 +99,6 @@ export class AuthService {
     return null;
   }
 
-  async logout(userId: string): Promise<void> {
-    await this.userRepository.update(userId, {
-      refreshToken: undefined,
-    });
-  }
-
   async refreshToken(refreshToken: string): Promise<AuthResponseDto> {
     try {
       const payload = this.jwtService.verify(refreshToken, {

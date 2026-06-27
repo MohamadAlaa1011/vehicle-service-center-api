@@ -31,10 +31,6 @@ let AuthController = class AuthController {
     async login(loginDto, user) {
         return this.authService.login(loginDto);
     }
-    async logout(userId) {
-        await this.authService.logout(userId);
-        return { message: 'Logout successful' };
-    }
     async refresh(refreshTokenDto) {
         return this.authService.refreshToken(refreshTokenDto.refreshToken);
     }
@@ -84,17 +80,6 @@ __decorate([
         user_entity_1.User]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
-__decorate([
-    (0, swagger_1.ApiExcludeEndpoint)(),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(guards_1.JwtAuthGuard),
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, common_1.Post)('logout'),
-    __param(0, (0, decorators_1.CurrentUser)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "logout", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Refresh access token' }),
     (0, swagger_1.ApiResponse)({

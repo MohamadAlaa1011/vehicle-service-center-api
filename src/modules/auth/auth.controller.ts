@@ -15,7 +15,6 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-  ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard, JwtAuthGuard } from './guards';
@@ -64,16 +63,6 @@ export class AuthController {
     @CurrentUser() user: User,
   ): Promise<AuthResponseDto> {
     return this.authService.login(loginDto);
-  }
-
-  @ApiExcludeEndpoint()
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @Post('logout')
-  async logout(@CurrentUser('id') userId: string): Promise<{ message: string }> {
-    await this.authService.logout(userId);
-    return { message: 'Logout successful' };
   }
 
   @ApiOperation({ summary: 'Refresh access token' })

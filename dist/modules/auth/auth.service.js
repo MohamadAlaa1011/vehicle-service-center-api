@@ -115,11 +115,6 @@ let AuthService = class AuthService {
         }
         return null;
     }
-    async logout(userId) {
-        await this.userRepository.update(userId, {
-            refreshToken: undefined,
-        });
-    }
     async refreshToken(refreshToken) {
         try {
             const payload = this.jwtService.verify(refreshToken, {
