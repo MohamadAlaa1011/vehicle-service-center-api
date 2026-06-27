@@ -72,6 +72,9 @@ async function bootstrap() {
             'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
         ],
     });
+    app.getHttpAdapter().get('/', (req, res) => {
+        res.redirect('/api/docs');
+    });
     app.getHttpAdapter().get('/health', (req, res) => {
         res.status(200).json({
             status: 'ok',

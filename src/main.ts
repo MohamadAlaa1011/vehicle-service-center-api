@@ -95,6 +95,11 @@ async function bootstrap() {
     ],
   });
 
+  // Redirect root to Swagger docs
+  app.getHttpAdapter().get('/', (req, res) => {
+    res.redirect('/api/docs');
+  });
+
   // Health check
   app.getHttpAdapter().get('/health', (req, res) => {
     res.status(200).json({
