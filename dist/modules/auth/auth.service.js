@@ -230,7 +230,7 @@ let AuthService = class AuthService {
         const accessToken = this.jwtService.sign(payload);
         const refreshToken = this.jwtService.sign(payload, {
             secret: this.configService.get('JWT_REFRESH_SECRET'),
-            expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
+            expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN') || '7d',
         });
         const expiresIn = this.parseExpiresIn(this.configService.get('JWT_EXPIRES_IN') || '24h');
         return {

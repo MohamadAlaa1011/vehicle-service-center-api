@@ -65,6 +65,8 @@ In your Bonto app → **Settings** → **Environment Variables**, add:
 | `DATABASE_URL` | *(paste Neon connection string)* |
 | `JWT_SECRET` | `dev-jwt-secret-key-123` |
 | `JWT_REFRESH_SECRET` | `dev-refresh-secret-456` |
+| `JWT_EXPIRES_IN` | `24h` *(optional — defaults to 24h)* |
+| `JWT_REFRESH_EXPIRES_IN` | `7d` *(optional — defaults to 7d)* |
 | `APP_URL` | `https://vehicle-service-center.bonto.run` |
 
 > **Important:** Replace `vehicle-service-center` with your actual Bonto subdomain.
