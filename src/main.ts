@@ -48,6 +48,14 @@ async function bootstrap() {
 
   // Rate limiting is handled by ThrottlerModule in app.module.ts
 
+  // Prevent browsers/CDN from caching stale Swagger specs
+  app.use(['/api/docs', '/api/docs-json'], (_req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+  });
+
   // Swagger documentation (enabled in all environments)
   const publicUrl =
     configService.get<string>('APP_URL') ||
@@ -60,7 +68,7 @@ async function bootstrap() {
   const swaggerBuilder = new DocumentBuilder()
     .setTitle('Vehicle Service Center Management System API')
     .setDescription('Complete API documentation for Vehicle Service Center Management System')
-    .setVersion('1.0')
+    .setVersion('1.0.1')
     .addBearerAuth();
 
   if (publicUrl) {

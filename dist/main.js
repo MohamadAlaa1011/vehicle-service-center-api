@@ -32,6 +32,12 @@ async function bootstrap() {
     }));
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
     app.useGlobalInterceptors(new common_1.ClassSerializerInterceptor(app.get(core_2.Reflector)), new logging_interceptor_1.LoggingInterceptor());
+    app.use(['/api/docs', '/api/docs-json'], (_req, res, next) => {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        next();
+    });
     const publicUrl = configService.get('APP_URL') ||
         configService.get('PUBLIC_URL') ||
         configService.get('TUNNEL_URL');
@@ -40,7 +46,7 @@ async function bootstrap() {
     const swaggerBuilder = new swagger_1.DocumentBuilder()
         .setTitle('Vehicle Service Center Management System API')
         .setDescription('Complete API documentation for Vehicle Service Center Management System')
-        .setVersion('1.0')
+        .setVersion('1.0.1')
         .addBearerAuth();
     if (publicUrl) {
         swaggerBuilder.addServer(publicUrl.replace(/\/$/, ''), 'Production');
