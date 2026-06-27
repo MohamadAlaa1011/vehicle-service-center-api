@@ -35,16 +35,23 @@ async function bootstrap() {
     const publicUrl = configService.get('APP_URL') ||
         configService.get('PUBLIC_URL') ||
         configService.get('TUNNEL_URL');
+    const port = configService.get('PORT', 3000);
+    const isRemoteDeploy = !!process.env.DATABASE_URL;
     const swaggerBuilder = new swagger_1.DocumentBuilder()
         .setTitle('Vehicle Service Center Management System API')
         .setDescription('Complete API documentation for Vehicle Service Center Management System')
         .setVersion('1.0')
-        .addBearerAuth()
-        .addServer('http://localhost:3000', 'Local Development');
+        .addBearerAuth();
     if (publicUrl) {
-        swaggerBuilder.addServer(publicUrl, 'Public (Bonto / Cloud)');
+        swaggerBuilder.addServer(publicUrl.replace(/\/$/, ''), 'Production');
     }
-    const config = swaggerBuilder
+    else if (isRemoteDeploy) {
+        swaggerBuilder.addServer('/', 'Current Host');
+    }
+    else {
+        swaggerBuilder.addServer(`http://localhost:${port}`, 'Local Development');
+    }
+    swaggerBuilder
         .addTag('Authentication', 'User authentication and authorization')
         .addTag('Users', 'User management operations')
         .addTag('Customers', 'Customer management operations')
@@ -58,8 +65,8 @@ async function bootstrap() {
         .addTag('Invoices', 'Invoice management operations')
         .addTag('Payments', 'Payment processing operations')
         .addTag('Reports', 'Business reports and analytics')
-        .addTag('Dashboard', 'Dashboard statistics')
-        .build();
+        .addTag('Dashboard', 'Dashboard statistics');
+    const config = swaggerBuilder.build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api/docs', app, document, {
         customSiteTitle: 'Vehicle Service Center API',
@@ -82,7 +89,6 @@ async function bootstrap() {
             uptime: process.uptime(),
         });
     });
-    const port = configService.get('PORT', 3000);
     await app.listen(port, '0.0.0.0');
     console.log(`🚀 Vehicle Service Center API is running on: ${await app.getUrl()}`);
     console.log(`📚 Swagger documentation available at: ${await app.getUrl()}/api/docs`);

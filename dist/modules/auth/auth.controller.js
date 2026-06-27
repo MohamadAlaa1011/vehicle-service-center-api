@@ -85,8 +85,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, swagger_1.ApiOperation)({ summary: 'User logout' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Logout successful' }),
+    (0, swagger_1.ApiExcludeEndpoint)(),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(guards_1.JwtAuthGuard),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

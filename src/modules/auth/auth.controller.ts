@@ -15,6 +15,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard, JwtAuthGuard } from './guards';
@@ -65,8 +66,7 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-  @ApiOperation({ summary: 'User logout' })
-  @ApiResponse({ status: 200, description: 'Logout successful' })
+  @ApiExcludeEndpoint()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)

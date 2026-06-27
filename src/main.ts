@@ -54,18 +54,25 @@ async function bootstrap() {
     configService.get<string>('PUBLIC_URL') ||
     configService.get<string>('TUNNEL_URL');
 
+  const port = configService.get<number>('PORT', 3000);
+  const isRemoteDeploy = !!process.env.DATABASE_URL;
+
   const swaggerBuilder = new DocumentBuilder()
     .setTitle('Vehicle Service Center Management System API')
     .setDescription('Complete API documentation for Vehicle Service Center Management System')
     .setVersion('1.0')
-    .addBearerAuth()
-    .addServer('http://localhost:3000', 'Local Development');
+    .addBearerAuth();
 
   if (publicUrl) {
-    swaggerBuilder.addServer(publicUrl, 'Public (Bonto / Cloud)');
+    swaggerBuilder.addServer(publicUrl.replace(/\/$/, ''), 'Production');
+  } else if (isRemoteDeploy) {
+    // Use same host as Swagger page (works on Bonto without APP_URL)
+    swaggerBuilder.addServer('/', 'Current Host');
+  } else {
+    swaggerBuilder.addServer(`http://localhost:${port}`, 'Local Development');
   }
 
-  const config = swaggerBuilder
+  swaggerBuilder
     .addTag('Authentication', 'User authentication and authorization')
     .addTag('Users', 'User management operations')
     .addTag('Customers', 'Customer management operations')
@@ -79,8 +86,9 @@ async function bootstrap() {
     .addTag('Invoices', 'Invoice management operations')
     .addTag('Payments', 'Payment processing operations')
     .addTag('Reports', 'Business reports and analytics')
-    .addTag('Dashboard', 'Dashboard statistics')
-    .build();
+    .addTag('Dashboard', 'Dashboard statistics');
+
+  const config = swaggerBuilder.build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document, {
@@ -109,7 +117,6 @@ async function bootstrap() {
     });
   });
 
-  const port = configService.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 Vehicle Service Center API is running on: ${await app.getUrl()}`);
