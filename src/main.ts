@@ -49,16 +49,23 @@ async function bootstrap() {
   // Rate limiting is handled by ThrottlerModule in app.module.ts
 
   // Swagger documentation (enabled in all environments)
-  const config = new DocumentBuilder()
+  const publicUrl =
+    configService.get<string>('APP_URL') ||
+    configService.get<string>('PUBLIC_URL') ||
+    configService.get<string>('TUNNEL_URL');
+
+  const swaggerBuilder = new DocumentBuilder()
     .setTitle('Vehicle Service Center Management System API')
     .setDescription('Complete API documentation for Vehicle Service Center Management System')
     .setVersion('1.0')
     .addBearerAuth()
-    .addServer('http://localhost:3000', 'Local Development')
-    .addServer(
-      configService.get('TUNNEL_URL') || 'https://your-tunnel-domain.trycloudflare.com',
-      'Cloudflare Tunnel (Public)'
-    )
+    .addServer('http://localhost:3000', 'Local Development');
+
+  if (publicUrl) {
+    swaggerBuilder.addServer(publicUrl, 'Public (Bonto / Cloud)');
+  }
+
+  const config = swaggerBuilder
     .addTag('Authentication', 'User authentication and authorization')
     .addTag('Users', 'User management operations')
     .addTag('Customers', 'Customer management operations')
@@ -98,7 +105,7 @@ async function bootstrap() {
   });
 
   const port = configService.get<number>('PORT', 3000);
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 Vehicle Service Center API is running on: ${await app.getUrl()}`);
   console.log(`📚 Swagger documentation available at: ${await app.getUrl()}/api/docs`);
