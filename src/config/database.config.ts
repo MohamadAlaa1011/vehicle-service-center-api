@@ -15,13 +15,11 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
       synchronize: configService.get<string>('NODE_ENV') === 'development',
       logging: configService.get<string>('NODE_ENV') === 'development',
       autoLoadEntities: true,
-      ssl:
-        databaseUrl.includes('neon') ||
-        databaseUrl.includes('railway') ||
-        databaseUrl.includes('render') ||
-        configService.get<string>('NODE_ENV') === 'production'
-          ? { rejectUnauthorized: false }
-          : false,
+      retryAttempts: 3,
+      retryDelay: 2000,
+      ssl: isRemoteDatabaseUrl(databaseUrl)
+        ? { rejectUnauthorized: false }
+        : false,
     };
   }
 
@@ -37,6 +35,8 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
     synchronize: configService.get<string>('NODE_ENV') === 'development',
     logging: configService.get<string>('NODE_ENV') === 'development',
     autoLoadEntities: true,
+    retryAttempts: 3,
+    retryDelay: 2000,
     ssl: configService.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
   };
 };

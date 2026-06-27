@@ -1,0 +1,9 @@
+export declare enum ServiceOrderStatus {
+    PENDING = "PENDING",
+    DIAGNOSING = "DIAGNOSING",
+    WAITING_PARTS = "WAITING_PARTS",
+    IN_PROGRESS = "IN_PROGRESS",
+    COMPLETED = "COMPLETED",
+    DELIVERED = "DELIVERED",
+    CANCELLED = "CANCELLED"
+}
