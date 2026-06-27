@@ -32,10 +32,13 @@ async function bootstrap() {
     }));
     app.useGlobalFilters(new http_exception_filter_1.HttpExceptionFilter());
     app.useGlobalInterceptors(new common_1.ClassSerializerInterceptor(app.get(core_2.Reflector)), new logging_interceptor_1.LoggingInterceptor());
-    app.use(['/api/docs', '/api/docs-json'], (_req, res, next) => {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
+    app.use((req, res, next) => {
+        if (req.path.startsWith('/api/reference') || req.path.startsWith('/api/docs')) {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            res.setHeader('CDN-Cache-Control', 'no-store');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        }
         next();
     });
     const publicUrl = configService.get('APP_URL') ||
@@ -46,7 +49,7 @@ async function bootstrap() {
     const swaggerBuilder = new swagger_1.DocumentBuilder()
         .setTitle('Vehicle Service Center Management System API')
         .setDescription('Complete API documentation for Vehicle Service Center Management System')
-        .setVersion('1.0.1')
+        .setVersion('1.0.2')
         .addBearerAuth();
     if (publicUrl) {
         swaggerBuilder.addServer(publicUrl.replace(/\/$/, ''), 'Production');
@@ -74,7 +77,7 @@ async function bootstrap() {
         .addTag('Dashboard', 'Dashboard statistics');
     const config = swaggerBuilder.build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
-    swagger_1.SwaggerModule.setup('api/docs', app, document, {
+    swagger_1.SwaggerModule.setup('api/reference', app, document, {
         customSiteTitle: 'Vehicle Service Center API',
         customfavIcon: '/favicon.ico',
         customJs: [
@@ -85,8 +88,12 @@ async function bootstrap() {
             'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
         ],
     });
-    app.getHttpAdapter().get('/', (req, res) => {
-        res.redirect('/api/docs');
+    const httpAdapter = app.getHttpAdapter();
+    httpAdapter.get('/api/docs', (_req, res) => {
+        res.redirect(302, '/api/reference');
+    });
+    httpAdapter.get('/', (_req, res) => {
+        res.redirect('/api/reference');
     });
     app.getHttpAdapter().get('/health', (req, res) => {
         res.status(200).json({

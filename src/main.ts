@@ -48,11 +48,14 @@ async function bootstrap() {
 
   // Rate limiting is handled by ThrottlerModule in app.module.ts
 
-  // Prevent browsers/CDN from caching stale Swagger specs
-  app.use(['/api/docs', '/api/docs-json'], (_req, res, next) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+  // Prevent browsers/CDN from caching stale Swagger assets (Cloudflare was caching init.js)
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/reference') || req.path.startsWith('/api/docs')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('CDN-Cache-Control', 'no-store');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
     next();
   });
 
@@ -68,7 +71,7 @@ async function bootstrap() {
   const swaggerBuilder = new DocumentBuilder()
     .setTitle('Vehicle Service Center Management System API')
     .setDescription('Complete API documentation for Vehicle Service Center Management System')
-    .setVersion('1.0.1')
+    .setVersion('1.0.2')
     .addBearerAuth();
 
   if (publicUrl) {
@@ -99,7 +102,7 @@ async function bootstrap() {
   const config = swaggerBuilder.build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document, {
+  SwaggerModule.setup('api/reference', app, document, {
     customSiteTitle: 'Vehicle Service Center API',
     customfavIcon: '/favicon.ico',
     customJs: [
@@ -111,13 +114,20 @@ async function bootstrap() {
     ],
   });
 
+  const httpAdapter = app.getHttpAdapter();
+
+  // Old /api/docs URL is cached by Cloudflare — redirect to fresh Swagger path
+  httpAdapter.get('/api/docs', (_req, res) => {
+    res.redirect(302, '/api/reference');
+  });
+
   // Redirect root to Swagger docs
-  app.getHttpAdapter().get('/', (req, res) => {
-    res.redirect('/api/docs');
+  httpAdapter.get('/', (_req, res) => {
+    res.redirect('/api/reference');
   });
 
   // Health check
-  app.getHttpAdapter().get('/health', (req, res) => {
+  httpAdapter.get('/health', (_req, res) => {
     res.status(200).json({
       status: 'ok',
       timestamp: new Date().toISOString(),
@@ -128,7 +138,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 Vehicle Service Center API is running on: ${await app.getUrl()}`);
-  console.log(`📚 Swagger documentation available at: ${await app.getUrl()}/api/docs`);
+  console.log(`📚 Swagger documentation available at: ${await app.getUrl()}/api/reference`);
 }
 
 bootstrap().catch(console.error);
